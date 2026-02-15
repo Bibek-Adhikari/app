@@ -18,7 +18,7 @@ export function useAuth() {
   // Load user and profile on mount
   useEffect(() => {
     if (isDemoMode) {
-      setUser({ id: 'demo-user-1', email: 'demo@example.com' } as any);
+      setUser({ id: 'demo-user-1', email: 'demo@example.com' } as User);
       setProfile({
         id: 'demo-user-1',
         username: 'johndoe',

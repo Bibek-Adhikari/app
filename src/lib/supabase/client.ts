@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
 import type { Profile } from '@/types';
 
@@ -48,7 +48,7 @@ export const supabase: any = !isDemoMode
         onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
       },
       channel: () => ({ on: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }) }),
-    } as any);
+    } as unknown as SupabaseClient<Database>);
 
 // Dummy profile for Demo Mode
 export const demoProfile: Profile = {

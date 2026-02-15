@@ -208,14 +208,14 @@ export function useMessages(roomId: string | undefined, userId: string | undefin
     } finally {
       setIsLoading(false);
     }
-  }, [roomId, isDemoMode]);
+  }, [roomId]);
 
   // Load more messages (pagination)
   const loadMore = useCallback(async () => {
     if (!messages.length || isLoading || isDemoMode) return;
     const oldestMessage = messages[0];
     await fetchMessages(oldestMessage.created_at);
-  }, [messages, isLoading, isDemoMode, fetchMessages]);
+  }, [messages, isLoading, fetchMessages]);
 
   // Send a message (with optimistic update)
   const sendMessage = useCallback(async (
@@ -315,7 +315,7 @@ export function useMessages(roomId: string | undefined, userId: string | undefin
       console.error('Error sending message:', error);
       throw error;
     }
-  }, [roomId, userId, isDemoMode]);
+  }, [roomId, userId]);
 
   // Mark messages as read
   const markAsRead = useCallback(async (messageIds: string[]) => {
@@ -333,7 +333,7 @@ export function useMessages(roomId: string | undefined, userId: string | undefin
     } catch (error) {
       console.error('Error marking messages as read:', error);
     }
-  }, [userId, isDemoMode]);
+  }, [userId]);
 
   // Subscribe to new messages
   useEffect(() => {
@@ -405,7 +405,7 @@ export function useMessages(roomId: string | undefined, userId: string | undefin
     return () => {
       subscription.unsubscribe();
     };
-  }, [roomId, userId, fetchMessages, markAsRead, isDemoMode]);
+  }, [roomId, userId, fetchMessages, markAsRead]);
 
   // Mark unread messages as read when entering room
   useEffect(() => {
@@ -418,7 +418,7 @@ export function useMessages(roomId: string | undefined, userId: string | undefin
     if (unreadMessages.length > 0) {
       markAsRead(unreadMessages.map(m => m.id));
     }
-  }, [messages, userId, markAsRead, isDemoMode]);
+  }, [messages, userId, markAsRead]);
 
   // Scroll to bottom
   const scrollToBottom = useCallback(() => {

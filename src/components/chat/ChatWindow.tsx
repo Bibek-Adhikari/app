@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Input } from '@/components/ui/input';
 import {
   Popover,
   PopoverContent,
@@ -21,22 +20,20 @@ import {
   Phone,
   Video,
   MoreVertical,
-  Paperclip,
   Mic,
   Send,
-  Image as ImageIcon,
   Sparkles,
-  Languages,
-  Check,
-  X,
+  Search,
+  Plus,
   Loader2,
+  X,
 } from 'lucide-react';
 import { useMessages } from '@/hooks/useMessages';
 import { useAI } from '@/hooks/useAI';
 import { useVoiceRecorder } from '@/hooks/useVoiceRecorder';
-import { supabase } from '@/lib/supabase/client';
 import type { Room, Profile, Message } from '@/types';
 import { MessageBubble } from './MessageBubble';
+import { supabase } from '@/lib/supabase/client';
 
 interface ChatWindowProps {
   room: Room;
@@ -50,10 +47,10 @@ export function ChatWindow({ room, currentUser, onBack }: ChatWindowProps) {
   const [replyingTo, setReplyingTo] = useState<Message | null>(null);
   const [showSummary, setShowSummary] = useState(false);
   const [summary, setSummary] = useState<string[] | null>(null);
-  const [enableTranslation, setEnableTranslation] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
+  const [enableTranslation] = useState(false);
   const [isCalling, setIsCalling] = useState(false);
   const [callType, setCallType] = useState<'audio' | 'video' | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -74,11 +71,9 @@ export function ChatWindow({ room, currentUser, onBack }: ChatWindowProps) {
   const {
     isRecording,
     recordingDuration,
-    formattedDuration,
     audioBlob,
     startRecording,
     stopRecording,
-    cancelRecording,
     resetRecording,
   } = useVoiceRecorder();
 
@@ -183,12 +178,10 @@ export function ChatWindow({ room, currentUser, onBack }: ChatWindowProps) {
   const handleCall = (type: 'audio' | 'video') => {
     setCallType(type);
     setIsCalling(true);
-    // LiveKit integration would go here
-    // In a real app, we would use token from Supabase Edge Function
     setTimeout(() => {
       setIsCalling(false);
       setCallType(null);
-    }, 5000); // Simulate call for 5s
+    }, 5000);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -199,12 +192,12 @@ export function ChatWindow({ room, currentUser, onBack }: ChatWindowProps) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-950">
+    <div className="flex flex-col h-full bg-background relative">
       {/* Chat Header */}
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between p-4 bg-slate-900/80 backdrop-blur-xl border-b border-slate-800/50"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex items-center justify-between p-3 bg-secondary border-b border-border/50 z-10"
       >
         <div className="flex items-center gap-3">
           {onBack && (
@@ -212,95 +205,69 @@ export function ChatWindow({ room, currentUser, onBack }: ChatWindowProps) {
               variant="ghost"
               size="icon"
               onClick={onBack}
-              className="lg:hidden text-slate-400 hover:text-white"
+              className="lg:hidden text-muted-foreground hover:text-foreground"
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
           )}
-          <div className="relative">
+          <div className="relative cursor-pointer">
             <Avatar className="w-10 h-10">
               <AvatarImage src={getRoomAvatar() || undefined} />
-              <AvatarFallback className="bg-gradient-to-br from-slate-600 to-slate-700 text-white">
+              <AvatarFallback className="bg-muted text-muted-foreground">
                 {getRoomDisplayName()[0]?.toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            {!room.is_group && (
-              <span
-                className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-slate-900 ${
-                  isOnline() ? 'bg-emerald-500' : 'bg-slate-500'
-                }`}
-              />
-            )}
           </div>
-          <div>
-            <h3 className="font-semibold text-white">{getRoomDisplayName()}</h3>
-            <p className="text-xs text-slate-400">
+          <div className="cursor-pointer">
+            <h3 className="font-medium text-foreground leading-tight">{getRoomDisplayName()}</h3>
+            <p className="text-[12px] text-muted-foreground">
               {room.is_group
                 ? `${room.participants?.length || 0} members`
                 : isOnline()
-                ? 'Online'
-                : 'Offline'}
+                ? 'online'
+                : 'last seen recently'}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-1">
-          {/* AI Summary Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleSummarize}
-            disabled={isSummarizing || messages.length < 3}
-            className="hidden sm:flex items-center gap-2 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10"
-          >
-            {isSummarizing ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Sparkles className="w-4 h-4" />
-            )}
-            Summarize
-          </Button>
-
-          {/* Translation Toggle */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setEnableTranslation(!enableTranslation)}
-            className={`${
-              enableTranslation
-                ? 'text-emerald-400 bg-emerald-500/10'
-                : 'text-slate-400 hover:text-white'
-            }`}
-            title="Auto-translate messages"
-          >
-            <Languages className="w-5 h-5" />
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => handleCall('audio')}
-            className="text-slate-400 hover:text-white hover:bg-slate-800/50"
-          >
-            <Phone className="w-5 h-5" />
-          </Button>
+        <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => handleCall('video')}
-            className="text-slate-400 hover:text-white hover:bg-slate-800/50"
+            className="text-muted-foreground hover:text-foreground rounded-full"
+            title="Video call"
           >
             <Video className="w-5 h-5" />
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            className="text-slate-400 hover:text-white hover:bg-slate-800/50"
+            onClick={() => handleCall('audio')}
+            className="text-muted-foreground hover:text-foreground rounded-full"
+            title="Voice call"
+          >
+            <Phone className="w-5 h-5" />
+          </Button>
+          <div className="w-[1px] h-6 bg-border mx-1" />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-muted-foreground hover:text-foreground rounded-full"
+            title="Search"
+          >
+            <Search className="w-5 h-5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-muted-foreground hover:text-foreground rounded-full"
           >
             <MoreVertical className="w-5 h-5" />
           </Button>
         </div>
       </motion.div>
+
 
       {/* Calling Overlay */}
       <AnimatePresence>
@@ -340,41 +307,43 @@ export function ChatWindow({ room, currentUser, onBack }: ChatWindowProps) {
       </AnimatePresence>
 
       {/* Messages Area */}
-      <ScrollArea className="flex-1 p-4">
-        {hasMore && (
-          <div className="text-center mb-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={loadMore}
-              disabled={isLoading}
-              className="text-slate-500 hover:text-slate-300"
-            >
-              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Load more'}
-            </Button>
+      <ScrollArea className="flex-1 whatsapp-chat-bg">
+        <div className="p-4">
+          {hasMore && (
+            <div className="text-center mb-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={loadMore}
+                disabled={isLoading}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Load more'}
+              </Button>
+            </div>
+          )}
+
+          <div className="max-w-4xl mx-auto space-y-2">
+            <AnimatePresence>
+              {messages.map((message, index) => {
+                const isOwn = message.sender_id === currentUser.id;
+                const showAvatar =
+                  index === 0 || messages[index - 1].sender_id !== message.sender_id;
+
+                return (
+                  <MessageBubble
+                    key={message.id}
+                    message={message}
+                    isOwn={isOwn}
+                    showAvatar={showAvatar}
+                    enableTranslation={enableTranslation}
+                    onReply={() => setReplyingTo(message)}
+                  />
+                );
+              })}
+            </AnimatePresence>
+            <div ref={messagesEndRef} />
           </div>
-        )}
-
-        <div className="space-y-4">
-          <AnimatePresence>
-            {messages.map((message, index) => {
-              const isOwn = message.sender_id === currentUser.id;
-              const showAvatar =
-                index === 0 || messages[index - 1].sender_id !== message.sender_id;
-
-              return (
-                <MessageBubble
-                  key={message.id}
-                  message={message}
-                  isOwn={isOwn}
-                  showAvatar={showAvatar}
-                  enableTranslation={enableTranslation}
-                  onReply={() => setReplyingTo(message)}
-                />
-              );
-            })}
-          </AnimatePresence>
-          <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
 
@@ -384,10 +353,10 @@ export function ChatWindow({ room, currentUser, onBack }: ChatWindowProps) {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10 }}
-          className="px-4 py-2 bg-slate-800/50 border-t border-slate-800/50 flex items-center gap-2"
+          className="px-4 py-2 bg-secondary border-t border-border/50 flex items-center gap-2"
         >
-          <div className="flex-1 flex items-center gap-2 text-sm text-slate-400">
-            <span className="text-emerald-400">Replying to:</span>
+          <div className="flex-1 flex items-center gap-2 text-sm text-muted-foreground">
+            <span className="text-primary font-medium">Replying to:</span>
             <span className="truncate">
               {replyingTo.content || (replyingTo.message_type === 'image' ? '📷 Photo' : '🎤 Voice')}
             </span>
@@ -396,87 +365,43 @@ export function ChatWindow({ room, currentUser, onBack }: ChatWindowProps) {
             variant="ghost"
             size="icon"
             onClick={() => setReplyingTo(null)}
-            className="h-6 w-6 text-slate-500 hover:text-white"
+            className="h-6 w-6 text-muted-foreground hover:text-foreground"
           >
             <X className="w-4 h-4" />
           </Button>
         </motion.div>
       )}
 
-      {/* Voice Recording Preview */}
-      {isRecording && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="px-4 py-3 bg-slate-800/50 border-t border-slate-800/50 flex items-center gap-4"
-        >
-          <div className="flex items-center gap-2 text-red-400">
-            <span className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
-            <span>Recording...</span>
-          </div>
-          <span className="text-white font-mono">{formattedDuration}</span>
-          <div className="flex-1" />
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={cancelRecording}
-            className="text-slate-400 hover:text-white"
-          >
-            <X className="w-4 h-4 mr-1" />
-            Cancel
-          </Button>
-          <Button
-            size="sm"
-            onClick={stopRecording}
-            className="bg-emerald-500 hover:bg-emerald-600 text-white"
-          >
-            <Check className="w-4 h-4 mr-1" />
-            Done
-          </Button>
-        </motion.div>
-      )}
-
-      {/* Audio Preview */}
-      {audioBlob && !isRecording && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="px-4 py-3 bg-slate-800/50 border-t border-slate-800/50 flex items-center gap-4"
-        >
-          <span className="text-emerald-400 flex items-center gap-2">
-            <Mic className="w-4 h-4" />
-            Voice note ready
-          </span>
-          <span className="text-slate-400">{formattedDuration}</span>
-          <div className="flex-1" />
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={resetRecording}
-            className="text-slate-400 hover:text-white"
-          >
-            <X className="w-4 h-4 mr-1" />
-            Remove
-          </Button>
-        </motion.div>
-      )}
-
       {/* Input Area */}
-      <div className="p-4 bg-slate-900/80 backdrop-blur-xl border-t border-slate-800/50">
-        <div className="flex items-center gap-2">
+      <div className="p-2 pb-4 bg-secondary flex items-center gap-2">
+        <div className="flex items-center gap-1 px-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleSummarize}
+            disabled={isSummarizing || messages.length < 3}
+            className="text-muted-foreground hover:text-foreground rounded-full"
+            title="Summarize conversation"
+          >
+            {isSummarizing ? (
+              <Loader2 className="w-6 h-6 animate-spin" />
+            ) : (
+              <Sparkles className="w-6 h-6" />
+            )}
+          </Button>
           <Popover open={showAttachMenu} onOpenChange={setShowAttachMenu}>
             <PopoverTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
                 disabled={isRecording || !!audioBlob}
-                className="text-slate-400 hover:text-white hover:bg-slate-800/50"
+                className="text-muted-foreground hover:text-foreground rounded-full"
               >
-                <Paperclip className="w-5 h-5" />
+                <Plus className="w-6 h-6" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-48 bg-slate-800 border-slate-700 p-2">
-              <div className="space-y-1">
+            <PopoverContent className="w-48 bg-card border-border p-2 mb-2" align="start">
+               <div className="space-y-1">
                 <input
                   type="file"
                   accept="image/*"
@@ -486,60 +411,55 @@ export function ChatWindow({ room, currentUser, onBack }: ChatWindowProps) {
                 />
                 <Button
                   variant="ghost"
-                  className="w-full justify-start text-slate-300 hover:text-white hover:bg-slate-700"
+                  className="w-full justify-start text-foreground hover:bg-muted"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploadingImage}
                 >
-                  {uploadingImage ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : (
-                    <ImageIcon className="w-4 h-4 mr-2" />
-                  )}
-                  Photo
+                  <Plus className="w-4 h-4 mr-2" />
+                  Photos & Videos
                 </Button>
               </div>
             </PopoverContent>
           </Popover>
+        </div>
 
-          <div className="flex-1 relative">
-            <Input
-              placeholder={isRecording ? 'Recording...' : 'Type a message...'}
-              value={messageInput}
-              onChange={(e) => setMessageInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              disabled={isRecording || !!audioBlob}
-              className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500 focus:border-emerald-500 focus:ring-emerald-500/20 pr-10"
-            />
-          </div>
+        <div className="flex-1 relative flex items-center bg-muted rounded-xl px-4 py-1.5 ring-1 ring-border/50">
+          <input
+            placeholder={isRecording ? 'Recording...' : 'Type a message'}
+            value={messageInput}
+            onChange={(e) => setMessageInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={isRecording || !!audioBlob}
+            className="bg-transparent border-none text-[15px] text-foreground placeholder:text-muted-foreground focus:ring-0 flex-1 outline-none py-1.5"
+          />
+        </div>
 
+        <div className="flex items-center px-1">
           {!messageInput.trim() && !audioBlob ? (
             <Button
               variant="ghost"
               size="icon"
               onClick={isRecording ? stopRecording : startRecording}
-              className={`${
+              className={`rounded-full ${
                 isRecording
-                  ? 'text-red-400 bg-red-500/10'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                  ? 'text-destructive bg-destructive/10'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              <Mic className="w-5 h-5" />
+              <Mic className="w-6 h-6" />
             </Button>
           ) : (
             <Button
               onClick={handleSendMessage}
               disabled={uploadingImage}
-              className="bg-emerald-500 hover:bg-emerald-600 text-white"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full w-10 h-10 p-0 flex items-center justify-center shrink-0"
             >
-              {uploadingImage ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <Send className="w-5 h-5" />
-              )}
+               <Send className="w-5 h-5 fill-current" />
             </Button>
           )}
         </div>
       </div>
+
 
       {/* Summary Dialog */}
       <Dialog open={showSummary} onOpenChange={setShowSummary}>

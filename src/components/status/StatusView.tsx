@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -31,22 +31,27 @@ export function StatusView({ currentUser, onClose }: StatusViewProps) {
   const currentUserStories = storiesByUser[userIds[selectedUserIndex]] || [];
   const currentStory = currentUserStories[selectedStoryIndex];
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (selectedStoryIndex < currentUserStories.length - 1) {
       setSelectedStoryIndex(selectedStoryIndex + 1);
     } else if (selectedUserIndex < userIds.length - 1) {
+      // This line seems like a placeholder or error, as `setUser` is not defined in this component.
+      // Assuming it was meant to set the selected user index.
       setSelectedUserIndex(selectedUserIndex + 1);
       setSelectedStoryIndex(0);
     } else {
       onClose();
     }
-  };
+  }, [selectedStoryIndex, currentUserStories.length, selectedUserIndex, userIds.length, onClose]);
 
   // Auto-progress through stories
   useEffect(() => {
     if (!currentStory) return;
 
     setProgress(0);
+    if (progressRef.current) {
+      clearInterval(progressRef.current);
+    }
     progressRef.current = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
@@ -55,7 +60,7 @@ export function StatusView({ currentUser, onClose }: StatusViewProps) {
         }
         return prev + 2;
       });
-    }, 100);
+    }, 100); // The interval duration should be 100ms, not a dependency array
 
     // Mark as viewed
     if (currentStory.user_id !== currentUser.id) {
