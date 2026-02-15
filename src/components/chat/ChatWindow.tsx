@@ -52,6 +52,8 @@ export function ChatWindow({ room, currentUser, onBack }: ChatWindowProps) {
   const [summary, setSummary] = useState<string[] | null>(null);
   const [enableTranslation, setEnableTranslation] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [isCalling, setIsCalling] = useState(false);
+  const [callType, setCallType] = useState<'audio' | 'video' | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -178,6 +180,17 @@ export function ChatWindow({ room, currentUser, onBack }: ChatWindowProps) {
     }
   };
 
+  const handleCall = (type: 'audio' | 'video') => {
+    setCallType(type);
+    setIsCalling(true);
+    // LiveKit integration would go here
+    // In a real app, we would use token from Supabase Edge Function
+    setTimeout(() => {
+      setIsCalling(false);
+      setCallType(null);
+    }, 5000); // Simulate call for 5s
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -266,6 +279,7 @@ export function ChatWindow({ room, currentUser, onBack }: ChatWindowProps) {
           <Button
             variant="ghost"
             size="icon"
+            onClick={() => handleCall('audio')}
             className="text-slate-400 hover:text-white hover:bg-slate-800/50"
           >
             <Phone className="w-5 h-5" />
@@ -273,6 +287,7 @@ export function ChatWindow({ room, currentUser, onBack }: ChatWindowProps) {
           <Button
             variant="ghost"
             size="icon"
+            onClick={() => handleCall('video')}
             className="text-slate-400 hover:text-white hover:bg-slate-800/50"
           >
             <Video className="w-5 h-5" />
@@ -286,6 +301,43 @@ export function ChatWindow({ room, currentUser, onBack }: ChatWindowProps) {
           </Button>
         </div>
       </motion.div>
+
+      {/* Calling Overlay */}
+      <AnimatePresence>
+        {isCalling && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6"
+          >
+            <div className="relative mb-8">
+              <div className="absolute inset-0 bg-emerald-500/20 rounded-full animate-ping scale-150" />
+              <Avatar className="w-32 h-32 ring-4 ring-emerald-500/50">
+                <AvatarImage src={getRoomAvatar() || undefined} />
+                <AvatarFallback className="bg-gradient-to-br from-slate-600 to-slate-700 text-white text-4xl">
+                  {getRoomDisplayName()[0]?.toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+            
+            <h2 className="text-3xl font-bold text-white mb-2">{getRoomDisplayName()}</h2>
+            <p className="text-emerald-400 font-medium animate-pulse mb-12">
+              {callType === 'video' ? 'Starting Video Call...' : 'Calling...'}
+            </p>
+
+            <div className="flex gap-6">
+              <Button
+                size="icon"
+                onClick={() => setIsCalling(false)}
+                className="w-16 h-16 rounded-full bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/20"
+              >
+                <X className="w-8 h-8" />
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Messages Area */}
       <ScrollArea className="flex-1 p-4">

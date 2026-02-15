@@ -1,11 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase, getCurrentUser, getProfile } from '@/lib/supabase/client';
+import { supabase, getCurrentUser, getProfile, isDemoMode } from '@/lib/supabase/client';
 import type { Profile, UserSettings } from '@/types';
 import type { User, AuthChangeEvent, Session } from '@supabase/supabase-js';
 import type { Database } from '@/lib/supabase/database.types';
-
-// Demo mode check
-const isDemoMode = !import.meta.env.VITE_SUPABASE_URL;
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);

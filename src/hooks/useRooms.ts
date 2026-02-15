@@ -1,10 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/lib/supabase/client';
+import { supabase, isDemoMode } from '@/lib/supabase/client';
 import type { Database } from '@/lib/supabase/database.types';
 import type { Room, RoomParticipant, Message } from '@/types';
-
-// Demo mode check
-const isDemoMode = !import.meta.env.VITE_SUPABASE_URL;
 
 // Demo rooms for preview
 const demoRooms: Room[] = [

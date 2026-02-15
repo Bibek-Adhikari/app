@@ -1,12 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { supabase } from '@/lib/supabase/client';
+import { supabase, isDemoMode } from '@/lib/supabase/client';
 import type { Database } from '@/lib/supabase/database.types';
 import type { Message } from '@/types';
 import type { RealtimePostgresInsertPayload, RealtimePostgresUpdatePayload } from '@supabase/supabase-js';
 
 const MESSAGES_PER_PAGE = 50;
-
-// Demo messages for preview
 const demoMessages: Record<string, Message[]> = {
   'room-1': [
     {
@@ -158,9 +156,6 @@ export function useMessages(roomId: string | undefined, userId: string | undefin
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  // Demo mode check
-  const isDemoMode = !import.meta.env.VITE_SUPABASE_URL;
 
   // Fetch messages for the room
   const fetchMessages = useCallback(async (before?: string) => {

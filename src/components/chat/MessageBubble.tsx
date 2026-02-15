@@ -31,11 +31,12 @@ export function MessageBubble({
   onReply,
 }: MessageBubbleProps) {
   const [showTranscription, setShowTranscription] = useState(false);
+  const [transcription, setTranscription] = useState<string | null>(null);
   const [translatedContent, setTranslatedContent] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const { translateMessage } = useAI();
+  const { translateMessage, transcribeVoice, isTranscribing } = useAI();
 
   const handleTranslate = async () => {
     if (!message.content || translatedContent) return;
@@ -47,6 +48,14 @@ export function MessageBubble({
     setIsTranslating(false);
   };
 
+  const handleTranscribe = async () => {
+    if (!message.media_url || transcription) return;
+    const result = await transcribeVoice(message.media_url);
+    if (result) {
+      setTranscription(result);
+      setShowTranscription(true);
+    }
+  };
   const togglePlay = () => {
     if (audioRef.current) {
       if (isPlaying) {
@@ -178,14 +187,19 @@ export function MessageBubble({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setShowTranscription(!showTranscription)}
+              onClick={showTranscription ? () => setShowTranscription(false) : handleTranscribe}
+              disabled={isTranscribing}
               className={`mt-2 h-6 text-xs ${
                 isOwn
                   ? 'text-white/70 hover:text-white hover:bg-white/10'
                   : 'text-slate-400 hover:text-slate-300 hover:bg-slate-700'
               }`}
             >
-              <Wand2 className="w-3 h-3 mr-1" />
+              {isTranscribing ? (
+                <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+              ) : (
+                <Wand2 className="w-3 h-3 mr-1" />
+              )}
               {showTranscription ? 'Hide transcript' : 'AI Transcribe'}
             </Button>
           )}
@@ -199,7 +213,7 @@ export function MessageBubble({
                 isOwn ? 'bg-white/10 text-white/80' : 'bg-slate-700 text-slate-400'
               }`}
             >
-              <p className="italic">Transcription would appear here from Gemini AI...</p>
+              <p className="italic">{transcription || 'Transcribing...'}</p>
             </motion.div>
           )}
 
