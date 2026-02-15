@@ -31,6 +31,17 @@ export function StatusView({ currentUser, onClose }: StatusViewProps) {
   const currentUserStories = storiesByUser[userIds[selectedUserIndex]] || [];
   const currentStory = currentUserStories[selectedStoryIndex];
 
+  const handleNext = () => {
+    if (selectedStoryIndex < currentUserStories.length - 1) {
+      setSelectedStoryIndex(selectedStoryIndex + 1);
+    } else if (selectedUserIndex < userIds.length - 1) {
+      setSelectedUserIndex(selectedUserIndex + 1);
+      setSelectedStoryIndex(0);
+    } else {
+      onClose();
+    }
+  };
+
   // Auto-progress through stories
   useEffect(() => {
     if (!currentStory) return;
@@ -57,17 +68,6 @@ export function StatusView({ currentUser, onClose }: StatusViewProps) {
       }
     };
   }, [currentStory, selectedUserIndex, selectedStoryIndex, currentUser.id, handleNext, viewStory]);
-
-  const handleNext = () => {
-    if (selectedStoryIndex < currentUserStories.length - 1) {
-      setSelectedStoryIndex(selectedStoryIndex + 1);
-    } else if (selectedUserIndex < userIds.length - 1) {
-      setSelectedUserIndex(selectedUserIndex + 1);
-      setSelectedStoryIndex(0);
-    } else {
-      onClose();
-    }
-  };
 
   const handlePrevious = () => {
     if (selectedStoryIndex > 0) {

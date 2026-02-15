@@ -5,21 +5,62 @@ import type { Profile } from '@/types';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-  },
-  realtime: {
-    params: {
-      eventsPerSecond: 10,
-    },
-  },
-});
+export const isDemoMode = !supabaseUrl || !supabaseAnonKey;
+
+// Initialize Supabase only if credentials are provided
+export const supabase: any = !isDemoMode
+  ? createClient<Database>(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+      },
+      realtime: {
+        params: {
+          eventsPerSecond: 10,
+        },
+      },
+    })
+  : ({
+      from: () => ({
+        select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: null, error: null }), order: () => ({ limit: () => Promise.resolve({ data: [], error: null }) }) }) }),
+        insert: () => Promise.resolve({ data: null, error: null }),
+        update: () => ({ eq: () => ({ select: () => ({ single: () => Promise.resolve({ data: null, error: null }) }) }) }),
+        delete: () => ({ eq: () => Promise.resolve({ data: null, error: null }) }),
+        upsert: () => Promise.resolve({ data: null, error: null }),
+      }),
+      auth: {
+        signUp: () => Promise.resolve({ data: { user: null }, error: null }),
+        signInWithPassword: () => Promise.resolve({ data: { user: null }, error: null }),
+        signOut: () => Promise.resolve({ error: null }),
+        getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+        onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+      },
+      channel: () => ({ on: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }) }),
+    } as any);
+
+// Dummy profile for Demo Mode
+const demoProfile: Profile = {
+  id: 'demo-user-1',
+  username: 'johndoe',
+  full_name: 'John Doe',
+  avatar_url: null,
+  phone_number: '+1234567890',
+  status: 'Hey there! I am using Stunner.',
+  is_online: true,
+  last_seen: new Date().toISOString(),
+  preferred_language: 'en',
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+};
 
 // Auth helpers
 export const signUp = async (email: string, password: string, username: string, fullName: string) => {
+  if (isDemoMode) {
+    console.log('Demo Mode: Simulating sign up for', email);
+    return { data: { user: { id: 'demo-user-1', email } }, error: null };
+  }
+
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email,
     password,
@@ -50,6 +91,11 @@ export const signUp = async (email: string, password: string, username: string, 
 };
 
 export const signIn = async (email: string, password: string) => {
+  if (isDemoMode) {
+    console.log('Demo Mode: Simulating sign in for', email);
+    return { data: { user: { id: 'demo-user-1', email }, session: {} }, error: null };
+  }
+
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
@@ -60,17 +106,25 @@ export const signIn = async (email: string, password: string) => {
 };
 
 export const signOut = async () => {
+  if (isDemoMode) return;
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
 };
 
 export const getCurrentUser = async () => {
+  if (isDemoMode) {
+    return { id: 'demo-user-1', email: 'demo@example.com' } as any;
+  }
   const { data: { user }, error } = await supabase.auth.getUser();
   if (error) throw error;
   return user;
 };
 
 export const getProfile = async (userId: string): Promise<Profile> => {
+  if (isDemoMode) {
+    return demoProfile;
+  }
+
   const { data, error } = await supabase
     .from('profiles')
     .select('*')
