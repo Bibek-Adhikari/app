@@ -5,7 +5,18 @@ import type { Profile } from '@/types';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-export const isDemoMode = !supabaseUrl || !supabaseAnonKey;
+// Check if manually forced into demo mode via local storage
+const forcedDemo = typeof window !== 'undefined' && localStorage.getItem('stunner_demo_mode') === 'true';
+
+export const isDemoMode = forcedDemo || !supabaseUrl || !supabaseAnonKey;
+
+export const toggleDemoMode = () => {
+  if (typeof window !== 'undefined') {
+    const currentState = localStorage.getItem('stunner_demo_mode') === 'true';
+    localStorage.setItem('stunner_demo_mode', (!currentState).toString());
+    window.location.reload();
+  }
+};
 
 // Initialize Supabase only if credentials are provided
 export const supabase: any = !isDemoMode
@@ -40,7 +51,7 @@ export const supabase: any = !isDemoMode
     } as any);
 
 // Dummy profile for Demo Mode
-const demoProfile: Profile = {
+export const demoProfile: Profile = {
   id: 'demo-user-1',
   username: 'johndoe',
   full_name: 'John Doe',

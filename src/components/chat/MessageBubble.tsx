@@ -56,6 +56,7 @@ export function MessageBubble({
       setShowTranscription(true);
     }
   };
+
   const togglePlay = () => {
     if (audioRef.current) {
       if (isPlaying) {

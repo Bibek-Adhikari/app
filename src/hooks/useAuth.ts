@@ -18,6 +18,20 @@ export function useAuth() {
   // Load user and profile on mount
   useEffect(() => {
     if (isDemoMode) {
+      setUser({ id: 'demo-user-1', email: 'demo@example.com' } as any);
+      setProfile({
+        id: 'demo-user-1',
+        username: 'johndoe',
+        full_name: 'John Doe',
+        avatar_url: null,
+        phone_number: '+1234567890',
+        status: 'Hey there! I am using Stunner.',
+        is_online: true,
+        last_seen: new Date().toISOString(),
+        preferred_language: 'en',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      });
       setIsLoading(false);
       return;
     }

@@ -9,7 +9,9 @@ import { ChatWindow } from '@/components/chat/ChatWindow';
 import { StatusList } from '@/components/status/StatusList';
 import { useAuth } from '@/hooks/useAuth';
 import { useRooms } from '@/hooks/useRooms';
-import { isDemoMode } from '@/lib/supabase/client';
+import { isDemoMode, toggleDemoMode } from '@/lib/supabase/client';
+import { Button } from '@/components/ui/button';
+import { FlaskConical } from 'lucide-react';
 import './App.css';
 
 const queryClient = new QueryClient({
@@ -71,6 +73,25 @@ function App() {
             <RegisterForm key="register" onSuccess={() => setAuthView('login')} onLoginClick={() => setAuthView('login')} />
           )}
         </AnimatePresence>
+
+        {/* Test Mode Toggle - Global (Non-auth) */}
+        <div className="fixed bottom-4 right-4 z-[100]">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleDemoMode}
+            className={`rounded-full shadow-lg backdrop-blur-md border border-slate-700/50 flex items-center gap-2 px-4 h-10 transition-all ${
+              isDemoMode 
+                ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20' 
+                : 'bg-slate-900/80 text-slate-400 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            <FlaskConical className={`w-4 h-4 ${isDemoMode ? 'animate-pulse' : ''}`} />
+            <span className="text-xs font-semibold uppercase tracking-wider">
+              {isDemoMode ? 'Exit Test Mode' : 'Enter Test Mode'}
+            </span>
+          </Button>
+        </div>
       </div>
     );
   }
@@ -134,6 +155,25 @@ function App() {
           </AnimatePresence>
         </main>
         <Toaster />
+      </div>
+      
+      {/* Test Mode Toggle - Global */}
+      <div className="fixed bottom-4 right-4 z-[100]">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={toggleDemoMode}
+          className={`rounded-full shadow-lg backdrop-blur-md border border-slate-700/50 flex items-center gap-2 px-4 h-10 transition-all ${
+            isDemoMode 
+              ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20' 
+              : 'bg-slate-900/80 text-slate-400 hover:text-white hover:bg-slate-800'
+          }`}
+        >
+          <FlaskConical className={`w-4 h-4 ${isDemoMode ? 'animate-pulse' : ''}`} />
+          <span className="text-xs font-semibold uppercase tracking-wider">
+            {isDemoMode ? 'Exit Test Mode' : 'Enter Test Mode'}
+          </span>
+        </Button>
       </div>
     </QueryClientProvider>
   );
