@@ -1,0 +1,32 @@
+﻿
+> my-app@0.0.0 lint
+> eslint .
+
+
+C:\Users\crazy\Downloads\message app\app\src\components\status\StatusView.tsx
+  59:6  warning  React Hook useEffect has missing dependencies: 'currentUser.id', 'handleNext', and 'viewStory'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\crazy\Downloads\message app\app\src\components\ui\badge.tsx
+  47:1  warning  Unused eslint-disable directive (no problems were reported from 'react-refresh/only-export-components')
+
+C:\Users\crazy\Downloads\message app\app\src\components\ui\button-group.tsx
+  79:1  warning  Unused eslint-disable directive (no problems were reported from 'react-refresh/only-export-components')
+
+C:\Users\crazy\Downloads\message app\app\src\components\ui\button.tsx
+  63:1  warning  Unused eslint-disable directive (no problems were reported from 'react-refresh/only-export-components')
+
+C:\Users\crazy\Downloads\message app\app\src\components\ui\form.tsx
+  159:1  warning  Unused eslint-disable directive (no problems were reported from 'react-refresh/only-export-components')
+
+C:\Users\crazy\Downloads\message app\app\src\components\ui\navigation-menu.tsx
+  159:1  warning  Unused eslint-disable directive (no problems were reported from 'react-refresh/only-export-components')
+
+C:\Users\crazy\Downloads\message app\app\src\components\ui\toggle.tsx
+  46:1  warning  Unused eslint-disable directive (no problems were reported from 'react-refresh/only-export-components')
+
+C:\Users\crazy\Downloads\message app\app\src\hooks\useAuth.ts
+  99:6  warning  React Hook useEffect has a missing dependency: 'user'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+Γ£û 8 problems (0 errors, 8 warnings)
+  0 errors and 6 warnings potentially fixable with the `--fix` option.
+

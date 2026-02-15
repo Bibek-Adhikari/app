@@ -1,0 +1,60 @@
+﻿
+> my-app@0.0.0 lint
+> eslint .
+
+
+C:\Users\crazy\Downloads\message app\app\src\components\chat\ChatWindow.tsx
+  30:3   error  'CheckCheck' is defined but never used  @typescript-eslint/no-unused-vars
+  34:3   error  'Play' is defined but never used        @typescript-eslint/no-unused-vars
+  35:3   error  'Pause' is defined but never used       @typescript-eslint/no-unused-vars
+  36:3   error  'Wand2' is defined but never used       @typescript-eslint/no-unused-vars
+  43:10  error  'format' is defined but never used      @typescript-eslint/no-unused-vars
+
+C:\Users\crazy\Downloads\message app\app\src\components\status\StatusView.tsx
+  59:6  warning  React Hook useEffect has missing dependencies: 'currentUser.id', 'handleNext', and 'viewStory'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\crazy\Downloads\message app\app\src\components\ui\badge.tsx
+  46:17  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\crazy\Downloads\message app\app\src\components\ui\button-group.tsx
+  82:3  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\crazy\Downloads\message app\app\src\components\ui\button.tsx
+  62:18  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\crazy\Downloads\message app\app\src\components\ui\form.tsx
+  159:3  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\crazy\Downloads\message app\app\src\components\ui\navigation-menu.tsx
+  167:3  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\crazy\Downloads\message app\app\src\components\ui\sidebar.tsx
+  611:26  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+C:\Users\crazy\Downloads\message app\app\src\components\ui\sidebar.tsx:611:26
+  609 |   // Random width between 50 to 90%.
+  610 |   const width = React.useMemo(() => {
+> 611 |     return `${Math.floor(Math.random() * 40) + 50}%`
+      |                          ^^^^^^^^^^^^^ Cannot call impure function
+  612 |   }, [])
+  613 |
+  614 |   return (  react-hooks/purity
+  725:3   error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  react-refresh/only-export-components
+
+C:\Users\crazy\Downloads\message app\app\src\components\ui\toggle.tsx
+  45:18  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\crazy\Downloads\message app\app\src\hooks\useAuth.ts
+  99:6  warning  React Hook useEffect has a missing dependency: 'user'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\crazy\Downloads\message app\app\src\hooks\useStories.ts
+  38:51  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  38:77  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  41:43  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  65:14  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  89:14  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+Γ£û 20 problems (18 errors, 2 warnings)
+
